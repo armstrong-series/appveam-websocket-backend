@@ -1,0 +1,75 @@
+services:
+    app:
+        build: .
+        container_name: appveam_app
+        restart: unless-stopped
+        working_dir: /var/www
+        volumes:
+            - ./:/var/www
+        environment:
+            APP_ENV: local
+            APP_DEBUG: "true"
+            DB_HOST: mysql
+            DB_DATABASE: appveam
+            DB_USERNAME: root
+            DB_PASSWORD: password
+            REDIS_HOST: redis
+            BROADCAST_DRIVER: reverb
+            QUEUE_CONNECTION: redis
+            REVERB_SERVER_PORT: 6001
+            REVERB_SCALING_ENABLED: "true"
+        depends_on:
+            - mysql
+            - redis
+
+    nginx:
+        image: nginx:latest
+        container_name: appveam_nginx
+        restart: unless-stopped
+        ports:
+            - "8081:80"
+        volumes:
+            - ./nginx/conf.d:/etc/nginx/conf.d
+            - ./:/var/www
+        depends_on:
+            - app
+
+    mysql:
+        image: mysql:8.0
+        container_name: appveam_mysql
+        restart: unless-stopped
+        environment:
+            MYSQL_ROOT_PASSWORD: password
+            MYSQL_DATABASE: appveam
+        ports:
+            - "3306:3306"
+        volumes:
+            - mysql_data:/var/lib/mysql
+
+    redis:
+        image: redis:latest
+        container_name: appveam_redis
+        restart: unless-stopped
+        ports:
+            - "6379:6379"
+
+    reverb:
+        build: .
+        container_name: appveam_reverb
+        restart: unless-stopped
+        working_dir: /var/www
+        command: ["php", "artisan", "reverb:start", "--port=6001"]
+        volumes:
+            - ./:/var/www
+        environment:
+            APP_ENV: local
+            APP_DEBUG: "true"
+            REDIS_HOST: redis
+            REVERB_SERVER_PORT: 6001
+            REVERB_SCALING_ENABLED: "true"
+        depends_on:
+            - redis
+            - app
+
+volumes:
+    mysql_data:
