@@ -38,6 +38,7 @@ Clone the project from github. Ensure LAMP/MAMP Server is set on your machine
 -   Listen to Queue ; `php artisan queue:listen`
 
 Test (Feature Test)
+Ensure SQLite is install on your machine or Server.
 
 -   php artisan test --filter=PaymentStatusChangedTest
 

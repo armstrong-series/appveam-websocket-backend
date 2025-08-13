@@ -6,22 +6,16 @@ use Illuminate\Support\Facades\Log;
 
 
 
-Broadcast::channel(
-    'customer.{customerId}',
-    function (User $user, string $customerId) {
-        $user->loadMissing('role');
-        Log::emergency('Channel check', [
-            'auth_user_id' => $user->id,
-            'customerId' => $customerId,
-            'equal' => (string) $user->id === (string) $customerId,
-            'role' => $user->role?->name
-        ]);
+Broadcast::channel('customer.{customerId}', function (User $user, string $customerId) {
+    $user->load('role');
 
-        if ($user->role?->name === 'admin') {
-            return true;
-        }
+    if ($user->role && $user->role->name === 'admin') {
+        return true;
+    }
 
-        return (string) $user->id === (string) $customerId;
-        // return (string) $user->id === (string) $customerId || $user->role?->name === 'admin';
-    },
-);
+    if ($user->role && $user->role->name === 'customer' && (string) $user->id === (string) $customerId) {
+        return true;
+    }
+
+    return false;
+});

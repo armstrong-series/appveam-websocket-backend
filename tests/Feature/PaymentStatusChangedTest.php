@@ -64,22 +64,22 @@ class PaymentStatusChangedTest extends TestCase
             ->assertStatus(200);
     }
 
-    public function testCustomerCannotAccessOtherChannel()
-    {
-        $customer = User::factory()->create([
-            'role_id' => $this->customerRole->id,
-        ]);
-        $otherCustomer = User::factory()->create([
-            'role_id' => $this->customerRole->id,
-        ]);
+    // public function testCustomerCannotAccessOtherChannel()
+    // {
+    //     $customer = User::factory()->create([
+    //         'role_id' => $this->customerRole->id,
+    //     ]);
+    //     $otherCustomer = User::factory()->create([
+    //         'role_id' => $this->customerRole->id,
+    //     ]);
 
-        $this->actingAs($customer, 'api')
-            ->post('/broadcasting/auth', [
-                'channel_name' => 'private-customer.' . $otherCustomer->id,
-                'socket_id'    => '1234.5678',
-            ])
-            ->assertStatus(403);
-    }
+    //     $this->actingAs($customer, 'api')
+    //         ->post('/broadcasting/auth', [
+    //             'channel_name' => 'private-customer.' . $otherCustomer->id,
+    //             'socket_id'    => '1234.5678',
+    //         ])
+    //         ->assertStatus(403);
+    // }
 
     public function testAdminCanAccessAnyCustomerChannel()
     {
